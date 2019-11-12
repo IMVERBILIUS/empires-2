@@ -1,0 +1,69 @@
+
+CARA PEMASANGAN DIRECT PSX (Modified By ARWANA COMputindo)
+==========================================================
+1. Lepaskan kabel printer dari portnya, lalu pasang gamepad (pada saat komputer mati).
+
+2. Pastikan belum terdapat game controller lain, bila Anda menggunakan driver game controller lain 
+   sebelumnya kami sarankan untuk me-remove-nya terlebih dahulu. 
+
+3. Memulai proses install :
+   Start / Settings / Control Panel / Game Controllers / Add  / Add other / Have disk (masukkan disket driver Direct PSX).
+   pilih file direct.inf LALU PILIH OK, OK, FINISH 
+
+4. Aktifkan Gamepad : 
+   Pada MENU Game Controller pilihlah  DirectPad Pro FORCE FEEDBACK Controller
+   LALU PILIIH OK.
+ 
+5. Configurasi DirectPad Pro :
+   KLIK DirectPad Pro FORCE FEEDBACK 2 X ATAU KLIK Propertis / Configure / Controller Type (pilih PSX Digital) / ID = 1.
+
+6. Cobalah gamepad DirectPSX Anda, bila semua tombol berfungsi dengan baik 
+   maka proses installasi telah selesai.
+
+7. Untuk mengubah urutan tombol : Game Controllers / Pilih gamepad / properties / Configure / Buttons / Remap Buttons / lalu Anda disuruh memasukkan tombol (1 s/d 10) , tombol ke 11 tekan Enter. (OPTIONAL)
+
+
+UNTUK DIRECT PSX DOUBLE STICK
+=============================
+1. Lakukan instruksi (1-7) diatas terlebih dahulu.
+2. Tambahkan driver pada Game controllers sehingga terdapat 2 buah tulisan DirectPad Pro Controller 
+3. Masuklah ke DirectPad Pro Controller (baris pertama)
+	Propertis / Configure / Controller Type (pilih PSX 	Digital) / ID = 1.
+4. Masuklah ke DirectPad ProController (baris kedua) 
+	Propertis / Configure / Controller Type (pilih PSX 	Digital) / ID = 2.
+5. Cobalah gamepad DirectPSX Anda, bila semua tombol berfungsi dengan baik maka proses installasi telah selesai. 
+
+Pemasangan di Notebook / Laptop
+===============================
+
+Cek terlebih dahulu apakah di Start / Settings / Control Panel / System / Device Manager / Sound, Video and game controllers
+terdapat Gameport Joystick dengan manufacture by microsoft.
+
+Umumnya Notebook multimedia walaupun disertakan soundcard namun tidak memiliki Gameport joystick.
+oleh sebab itu buatlah terlebih dahulu Gameport joystick agar Direct PSX dapat berfungsi dengan cara :
+Di Control Panel : Add new hardware --> Carilah pilihan yang mencari hardware secara manual --> Sound, Video and game controllers / Microsoft / Gameport Joystick. 
+
+TROUBLE SHOOTING
+================
+Bila semua instruksi di atas telah Anda lakukan dengan benar namun tombol tidak berfungsi selayaknya. 
+Lakukan instruksi berikut :
+
+1. Non aktifkan gameport joystick dari sound card Anda dan membuat gameport joystick baru, 
+   dengan cara : 
+   * Start / Settings / Control Panel / System / Device Manager / Sound, Video and game controllers / Gameport Joystick --> 
+     Disable in this hardware profile (Di beri tanda check). Setelah itu restart komputer Anda.
+   * Di Control Panel : Add new hardware / Apabila gameport joystick Anda yang lama ditampilkan, 
+     pilihlah "NO" --> Carilah pilihan yang mencari hardware secara manual --> Sound, Video and game controllers / Microsoft / Gameport Joystick. 
+
+2. Pastikan pada Start / Settings / Control Panel / System / Device Manager / Sound, Video and game controllers
+   terdapat Gameport Joystick dengan manufacture by microsoft.
+
+3. Direct PSX Anda hanya dapat digunakan di game under windows 95 ke atas, jadi pastikan bahwa 
+   game / permainan yang Anda gunakan run under windows 95 bukan run under dos.
+
+4. Windows Anda telah terinstall directx v5.0 ke atas (dalam CD ini disertakan file directx v7.0) 
+
+
+Catatan : 
+* Tidak perlu menghapus (remove) printer Anda, kalau mau pakai printer tinggal lepas saja lalu pasang kabel printer seperti biasa (pada saat komputer mati).
+

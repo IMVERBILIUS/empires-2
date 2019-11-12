@@ -1,0 +1,68 @@
+[Before]
+App=
+Param=
+Func=
+
+[Directories]
+C:\Games\Virtual Game Station=0
+C:\Games=0
+
+[Messages]
+150=Error
+151=Select Directory
+152=Cannot read disk %s
+153=Cannot open directory %s
+154=Cannot create directory %s
+155=Cannot open file %s
+156=Error writing into file %s
+157=Error reading file %s
+158=Cancel
+159=Browse...
+160=Exit
+161=OK
+162=Confirmation
+163=Stop
+164=System Error
+165=Cannot run process %s
+166=Incorrect size: %s. Actual size is %lu bytes, however it should be %lu bytes!
+167=Close
+168=Cannot run function %s in %s!
+169=Waiting...
+170=Setup Warning
+237=Are you sure you want to uninstall %s?
+238=File %s will not be deleted. Continue uninstalling?
+239=%s will be deleted after reboot.
+240=Deleting records in the INI files...
+241=Deleting Registry settings...
+242=Removing program group and shortcuts...
+243=Deleting files...
+244=Delete
+245=Delete All
+246=Close
+247=File %s may be needed by other applications. Do you still want to delete it?
+248=These files were created after the installation and could not be deleted.
+249=Uninstall %s
+250=Cannot copy %s to %s!
+251=Uninstall Was successfully completed!
+0=Connectix Virtual Game Station v1.3
+
+[Files]
+C:\Games\Virtual Game Station\License.txt=0
+C:\Games\Virtual Game Station\Uninstal.exe=0
+C:\Games\Virtual Game Station\File_id.diz=0
+C:\Games\Virtual Game Station\Play.exe=0
+C:\Games\Virtual Game Station\Arhiez.nfo=0
+C:\Games\Virtual Game Station\Compatibility List.htm=0
+C:\WINDOWS\Profiles\deddy000\Desktop\Virtual Game Station v1.3.lnk=0
+C:\WINDOWS\Profiles\deddy000\Desktop\VGS Compatibility List.lnk=0
+
+[Registry]
+0=1,,HKEY_LOCAL_MACHINE,,Software\Microsoft\Windows\CurrentVersion\Uninstall\Connectix Virtual Game Station v1.3,,
+1=0,,HKEY_LOCAL_MACHINE,,Software\Microsoft\Windows\CurrentVersion\Uninstall\Connectix Virtual Game Station v1.3,,DisplayName
+2=0,,HKEY_LOCAL_MACHINE,,Software\Microsoft\Windows\CurrentVersion\Uninstall\Connectix Virtual Game Station v1.3,,UninstallString
+
+[Shortcuts]
+Group=Virtual Game Station
+Virtual Game Station v1.3 (D)=1
+VGS Compatibility List (D)=1
+Uninstall Connectix Virtual Game Station v1.3=1

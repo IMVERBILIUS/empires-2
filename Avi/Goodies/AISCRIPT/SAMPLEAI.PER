@@ -1,0 +1,1994 @@
+; SAMPLE AOK AI FILE
+; 17 MAY 2000
+  
+; ============== GROUPS - most of these will work for any file
+
+(defrule
+	(true)
+=>
+	(set-strategic-number sn-maximum-town-size 25)
+        (set-strategic-number sn-camp-max-distance 30)
+        (set-strategic-number sn-mill-max-distance 30)
+	(set-strategic-number sn-percent-enemy-sighted-response 100)
+	(set-strategic-number sn-enemy-sighted-response-distance 25)
+	(set-strategic-number sn-blot-exploration-map 1)
+	(set-strategic-number sn-number-explore-groups 2)
+	(disable-self)
+)
+
+; ============== ATTACK GROUPS - changing percent attack soldiers will make an AI weak or tough
+
+(defrule
+	(current-age == castle)
+	(true)
+=>
+	(set-strategic-number sn-task-ungrouped-soldiers 1)
+	(set-strategic-number sn-percent-attack-soldiers 70)
+	(set-strategic-number sn-number-explore-groups 1)
+	(disable-self)
+)
+
+; ================== RESIGNING - resigns if it can't train villagers
+
+(defrule
+	(building-type-count town-center less-than 1)
+	(unit-type-count-total villager < 2)
+	(not (can-train villager) )
+=>
+	(resign)
+	(disable-self)
+)
+
+
+; ============== VILLAGER ASSIGNMENT - most of these will work for any file
+
+(defrule
+	(current-age == dark-age)
+=>
+	(set-strategic-number sn-percent-civilian-explorers 0)
+	(set-strategic-number sn-percent-civilian-builders 15)
+	(set-strategic-number sn-percent-civilian-gatherers 85)
+	(set-strategic-number sn-cap-civilian-explorers 0)
+	(set-strategic-number sn-cap-civilian-gatherers 100)
+	(set-strategic-number sn-food-gatherer-percentage  60)
+	(set-strategic-number sn-gold-gatherer-percentage  0)
+	(set-strategic-number sn-stone-gatherer-percentage 0)
+	(set-strategic-number sn-wood-gatherer-percentage  40)
+	(set-strategic-number sn-maximum-gold-drop-distance 20)
+	(set-strategic-number sn-maximum-stone-drop-distance 20)
+	(set-strategic-number sn-maximum-food-drop-distance 20)
+	(disable-self)
+)
+
+(defrule
+	(current-age == feudal-age)
+=>
+	(set-strategic-number sn-percent-civilian-explorers 0)
+	(set-strategic-number sn-percent-civilian-builders 15)
+	(set-strategic-number sn-percent-civilian-gatherers 85)
+	(set-strategic-number sn-cap-civilian-explorers 0)
+	(set-strategic-number sn-cap-civilian-gatherers 100)
+	(set-strategic-number sn-food-gatherer-percentage  35)
+	(set-strategic-number sn-gold-gatherer-percentage  40)
+	(set-strategic-number sn-stone-gatherer-percentage 0)
+	(set-strategic-number sn-wood-gatherer-percentage  25)
+	(set-strategic-number sn-maximum-gold-drop-distance 20)
+	(set-strategic-number sn-maximum-stone-drop-distance 20)
+	(set-strategic-number sn-maximum-food-drop-distance 20)
+	(disable-self)
+)
+
+(defrule
+	(or
+		(current-age == castle-age)
+		(current-age == imperial-age)
+	)
+=>
+	(set-strategic-number sn-percent-civilian-explorers 0)
+	(set-strategic-number sn-percent-civilian-builders 15)
+	(set-strategic-number sn-percent-civilian-gatherers 85)
+	(set-strategic-number sn-cap-civilian-explorers 0)
+	(set-strategic-number sn-cap-civilian-gatherers 100)
+	(set-strategic-number sn-food-gatherer-percentage  30)
+	(set-strategic-number sn-gold-gatherer-percentage  30)
+	(set-strategic-number sn-stone-gatherer-percentage 10)
+	(set-strategic-number sn-wood-gatherer-percentage  30)
+	(set-strategic-number sn-maximum-gold-drop-distance 20)
+	(set-strategic-number sn-maximum-stone-drop-distance 20)
+	(set-strategic-number sn-maximum-food-drop-distance 20)
+	(disable-self)
+)
+
+
+; ============== COMPUTER CHEATING - In long scenario games, a CP can run out of resources. This magically gives him more.  Delete if you don't like your AI to cheat.
+
+(defrule
+	(true)
+=>
+	(enable-timer 4 3600)
+	(disable-self)
+)
+
+(defrule
+	(timer-triggered 4)
+=>
+	(cc-add-resource food 700)
+	(cc-add-resource wood 700)
+	(cc-add-resource gold 700)
+	(disable-timer 4)
+	(enable-timer 4 2700)
+)
+
+; ============== ATTACKING - The AI will attack once at 1100 seconds and then again every 1400 sec, provided it has enough defense soldiers.
+
+(defrule
+	(game-time > 1100)
+=>
+	(attack-now)
+	(enable-timer 7 1100)
+	(disable-self)
+	(chat-local-to-self "first attack")
+)
+
+(defrule
+	(timer-triggered 7)
+	(defend-soldier-count >= 12)
+=>
+	(attack-now)
+	(disable-timer 7)
+	(enable-timer 7 1400)
+	(chat-local-to-self "other attacks")
+)
+
+; ============== BUILD LISTS
+
+(defrule
+	(unit-type-count-total villager less-than 30)
+	(can-train villager)
+=>
+	(train villager)
+	(chat-local-to-self "villager")
+)
+
+;maintain housing
+(defrule
+	(housing-headroom less-than 4)
+	(population-headroom greater-than 0)
+	(can-build house)
+=>
+	(build house)
+	(chat-local-to-self "house")
+)
+
+;maintain a town center
+(defrule
+	(game-time greater-than 45)
+	(building-type-count town-center less-than 1)
+	(can-build town-center)
+=>
+	(build town-center)
+)
+
+(defrule
+	(current-age == castle-age)
+	(building-type-count town-center less-than 3)
+	(can-build town-center)
+=>
+	(build town-center)
+)
+
+(defrule
+	(building-type-count-total barracks less-than 1)
+	(can-build barracks)
+=>
+	(build barracks)
+	(chat-local-to-self "barracks")
+)
+
+(defrule
+	(building-type-count-total archery-range less-than 1)
+	(can-build archery-range)
+=>
+	(build archery-range)
+	(chat-local-to-self "range")
+)
+
+(defrule
+	(building-type-count-total stable less-than 2)
+	(can-build stable)
+=>
+	(build stable)
+	(chat-local-to-self "stable")
+)
+
+(defrule
+	(building-type-count-total blacksmith less-than 1)
+	(can-build blacksmith)
+=>
+	(build blacksmith)
+	(chat-local-to-self "blacksmith")
+)
+
+(defrule
+	(building-type-count-total market less-than 1)
+	(can-build market)
+=>
+	(build market)
+	(chat-local-to-self "market")
+)
+
+(defrule
+	(building-type-count-total university less-than 1)
+	(can-build university)
+=>
+	(build university)
+	(chat-local-to-self " university ")
+)
+
+(defrule
+	(building-type-count-total monastery less-than 1)
+	(can-build monastery)
+=>
+	(build monastery)
+	(chat-local-to-self " monastery ")
+)
+
+(defrule
+	(building-type-count-total castle less-than 1)
+	(can-build castle)
+=>
+	(build castle)
+	(chat-local-to-self "castle")
+)
+
+(defrule
+	(building-type-count-total siege-workshop less-than 1)
+	(can-build siege-workshop)
+=>
+	(build siege-workshop)
+	(chat-local-to-self "siege workshop")
+)
+
+(defrule
+	(building-type-count-total farm less-than 4)
+	(can-build farm)
+=>
+	(build farm)
+)
+
+(defrule
+	(food-amount less-than 100)
+	(building-type-count-total farm less-than 12)
+	(can-build farm)
+=>
+	(build farm)
+)
+
+(defrule
+	(resource-found wood)
+	(building-type-count-total lumber-camp < 5)
+	(dropsite-min-distance wood > 5)
+	(can-build lumber-camp)
+=>
+	(build lumber-camp)
+	(chat-local-to-self "wood place")
+)
+
+(defrule
+	(resource-found gold)
+	(building-type-count-total mining-camp < 5)
+	(dropsite-min-distance gold > 7)
+	(can-build mining-camp)
+=>
+	(build mining-camp)
+	(chat-local-to-self "gold place")
+)
+
+(defrule
+	(resource-found stone)
+	(building-type-count-total mining-camp < 5)
+	(dropsite-min-distance stone > 7)
+	(can-build mining-camp)
+=>
+	(build mining-camp)
+	(chat-local-to-self "rock place")
+)
+
+(defrule
+	(building-type-count-total mill less-than 1)
+=>
+	(build mill)
+	(chat-local-to-self "mill")
+)
+
+; ============== MILITARY UNITS
+
+(defrule
+	(unit-type-count-total knight-line < 12)
+	(can-train knight-line)
+=>
+	(train knight-line)
+	(chat-local-to-self "knight")
+)
+
+(defrule
+	(unit-type-count-total militiaman-line < 10)
+	(can-train militiaman-line)
+=>
+	(train militiaman-line)
+	(chat-local-to-self "infantry")
+)
+
+(defrule
+	(unit-type-count-total scout-cavalry-line < 1)
+	(can-train scout-cavalry-line)
+=>
+	(train scout-cavalry-line)
+	(chat-local-to-self "scout")
+)
+
+(defrule
+	(unit-type-count-total my-unique-unit-line < 8)
+	(can-train my-unique-unit-line)
+=>
+	(train my-unique-unit-line)
+	(chat-local-to-self "unique unit")
+)
+
+(defrule
+	(unit-type-count-total trebuchet < 3)
+	(can-train trebuchet)
+=>
+	(train trebuchet)
+	(chat-local-to-self "trebuchet")
+)
+
+(defrule
+	(difficulty == moderate)
+	(unit-type-count-total monk < 2)
+	(can-train monk)
+=>
+	(train monk)
+	(chat-local-to-self "monk")
+)
+
+(defrule
+	(difficulty == hard)
+	(unit-type-count-total monk < 4)
+	(can-train monk)
+=>
+	(train monk)
+	(chat-local-to-self "monk")
+)
+
+(defrule
+	(difficulty == hardest)
+	(unit-type-count-total monk < 6)
+	(can-train monk)
+=>
+	(train monk)
+	(chat-local-to-self "monk")
+)
+
+
+(defrule
+	(not (town-under-attack))
+	(unit-type-count-total battering-ram-line < 4)
+	(can-train battering-ram-line)
+=>
+	(train battering-ram-line)
+	(chat-local-to-self " I want to ram something")
+)
+
+; ============== ADVANCING IN AGE
+
+; Dark to Feudal
+
+(defrule
+	(unit-type-count-total villager > 20)
+	(current-age == dark-age)
+=>
+	(set-goal 16 96)
+	(disable-self)
+)
+
+(defrule
+	(goal 16 96)
+	(can-research-with-escrow feudal-age)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research feudal-age)
+	(chat-local-to-self "rising to feudal")
+	(set-goal 16 0)
+)
+
+; Feudal to Castle
+
+(defrule
+	(unit-type-count-total villager > 25)
+	(current-age == feudal-age)
+=>
+	(set-goal 16 98)
+	(disable-self)
+)
+
+(defrule
+(goal 16 98)
+	(wood-amount greater-than 600)
+	(can-sell-commodity wood)
+=>
+	(chat-local-to-self "selling wood for castle gold")
+	(sell-commodity wood)
+)
+
+(defrule
+(goal 16 98)
+	(stone-amount greater-than 500)
+	(commodity-selling-price stone greater-than 50)
+	(can-sell-commodity stone)
+=>
+	(chat-local-to-self "selling stone for castle gold")
+	(sell-commodity stone)
+)
+
+(defrule
+(goal 16 98)
+	(food-amount greater-or-equal 1100)
+	(can-sell-commodity food)
+=>
+	(chat-local-to-self "selling food for castle gold")
+	(sell-commodity food)
+)
+
+;getting needed food
+(defrule
+(goal 16 98)
+	(gold-amount greater-or-equal 1000)
+	(commodity-buying-price food less-than 200)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "buying castle food")
+	(buy-commodity food)
+)
+
+; advance to castle age if possible.
+(defrule
+	(goal 16 98)
+	(can-research-with-escrow castle-age)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research castle-age)
+	(chat-local-to-self "rising to castle")
+	(set-goal 16 0)
+)
+
+; Castle to Imperial
+
+(defrule
+	(unit-type-count-total villager > 25)
+	(current-age == castle-age)
+=>
+	(set-goal 16 99)
+	(disable-self)
+)
+
+(defrule
+(goal 16 99)
+	(wood-amount greater-than 600)
+	(can-sell-commodity wood)
+=>
+	(chat-local-to-self "selling wood for imperial gold")
+	(sell-commodity wood)
+)
+
+(defrule
+(goal 16 99)
+	(stone-amount greater-than 500)
+	(commodity-selling-price stone greater-than 50)
+	(can-sell-commodity stone)
+=>
+	(chat-local-to-self "selling stone for imperial gold")
+	(sell-commodity stone)
+)
+
+(defrule
+(goal 16 99)
+	(food-amount greater-or-equal 1100)
+	(can-sell-commodity food)
+=>
+	(chat-local-to-self "selling food for imperial gold")
+	(sell-commodity food)
+)
+
+;getting needed food
+(defrule
+(goal 16 99)
+	(gold-amount greater-or-equal 1000)
+	(commodity-buying-price food less-than 200)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "buying imperial food")
+	(buy-commodity food)
+)
+
+; advance to imperial age if possible.
+(defrule
+	(goal 16 99)
+	(can-research-with-escrow imperial-age)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research imperial-age)
+	(chat-local-to-self "rising to imperial")
+	(set-goal 16 0)
+)
+
+; ========================== UPGRADES - I usually use the same rules for upgrades for all civs.  If the AI has a certain number of units, it tries to upgrade them. 
+
+; problem with escrow - give up
+
+(defrule
+	(or
+		(or
+			(escrow-amount wood > 2000)
+			(escrow-amount food > 2000)
+		)
+		(or
+			(escrow-amount gold > 3000)
+			(escrow-amount stone > 3000)
+		)
+	)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(set-goal 16 0)
+)
+
+
+; ////////////////////////////////////////////////////
+
+; sets initial goal for escrow to make sure there are villagers
+
+(defrule
+	(true)
+=>
+	(set-goal 16 50)
+	(disable-self)
+)
+
+(defrule
+	(unit-type-count villager >= 15)
+=>
+	(set-goal 16 0)
+	(disable-self)
+)
+
+; sets escrow
+
+(defrule
+	(true)
+=>
+	(set-escrow-percentage wood 40)
+	(set-escrow-percentage food 40)
+	(set-escrow-percentage gold 40)
+	(set-escrow-percentage stone 40)
+)
+
+; /////////////////////////////////////////////////////
+;UNIT UPGRADES
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow my-unique-unit-upgrade)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research my-unique-unit-upgrade)
+	(chat-local-to-self "research elite uniques")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count militiaman > 4)
+	(can-research-with-escrow ri-man-at-arms)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-man-at-arms)
+	(chat-local-to-self "research man-at-arms")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count man-at-arms > 6)
+	(can-research-with-escrow ri-long-swordsman)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-long-swordsman)
+	(chat-local-to-self "research long swordsman ")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count long-swordsman > 6)
+	(can-research-with-escrow ri-two-handed-swordsman)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-two-handed-swordsman)
+	(chat-local-to-self "research two-handed-swordsman")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count two-handed-swordsman > 6)
+	(can-research-with-escrow ri-champion)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-champion)
+	(chat-local-to-self "research champion")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total spearman > 2)
+	(can-research-with-escrow ri-pikeman)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-pikeman)
+	(chat-local-to-self "research pike")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total scout-cavalry > 2)
+	(can-research-with-escrow ri-light-cavalry)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-light-cavalry)
+	(chat-local-to-self "research light-cavalry")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total camel > 2)
+	(can-research-with-escrow ri-heavy-camel)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-heavy-camel)
+	(chat-local-to-self "research heavy camel")
+)
+
+(defrule
+	(goal 16 0)
+      (unit-type-count-total knight > 2)
+	(can-research-with-escrow ri-cavalier)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-cavalier)
+	(chat-local-to-self "research cavalier")
+)
+
+(defrule
+	(goal 16 0)
+      (unit-type-count-total cavalier > 2)
+	(can-research-with-escrow ri-paladin)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-paladin)
+	(chat-local-to-self "research paladin")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count archer > 6)
+	(can-research-with-escrow ri-crossbow)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-crossbow)
+	(chat-local-to-self "research crossbow")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count crossbowman > 6)
+	(can-research-with-escrow ri-arbalest)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-arbalest)
+	(chat-local-to-self "research arbalest")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count cavalry-archer > 6)
+	(can-research-with-escrow ri-heavy-cavalry-archer)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-heavy-cavalry-archer)
+	(chat-local-to-self "research heavy-cavalry-archer")
+)
+
+(defrule
+	(unit-type-count-total skirmisher > 2)
+	(can-research-with-escrow ri-elite-skirmisher)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-elite-skirmisher)
+	(chat-local-to-self "research elite skirmisher")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count scorpion > 4)
+	(can-research-with-escrow ri-heavy-scorpion)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-heavy-scorpion)
+	(chat-local-to-self "research heavy-scorpion")
+)
+
+(defrule
+	(goal 16 0)
+      (unit-type-count battering-ram > 2)
+	(can-research-with-escrow ri-capped-ram)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-capped-ram)
+	(chat-local-to-self "research capped ram")
+)
+
+(defrule
+	(goal 16 0)
+      (unit-type-count capped-ram > 2)
+	(can-research-with-escrow ri-siege-ram)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-siege-ram)
+	(chat-local-to-self "research siege-ram")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count mangonel > 3)
+	(can-research-with-escrow ri-onager)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-onager)
+	(chat-local-to-self "research onager")
+)
+
+(defrule
+	(goal 16 0)
+      (unit-type-count onager > 3)
+	(can-research-with-escrow ri-siege-onager)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-siege-onager)
+	(chat-local-to-self "research siege onager")
+)
+
+;DOCK UNITS
+(defrule
+	(goal 16 0)
+	(unit-type-count galley > 2)
+	(can-research-with-escrow ri-war-galley)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-war-galley)
+	(chat-local-to-self "research war-galley")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count war-galley > 2)
+	(can-research-with-escrow ri-galleon)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-galleon)
+	(chat-local-to-self "research galleon")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count galleon > 2)
+		(unit-type-count war-galley > 2)
+	)
+	(can-research-with-escrow ri-cannon-galleon)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+      (research ri-cannon-galleon)
+	(chat-local-to-self "research cannon-galleon")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total fire-ship > 1)
+	(can-research-with-escrow ri-fast-fire-ship)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-fast-fire-ship)
+	(chat-local-to-self "research fast-fire-ship")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count demolition-ship > 2)
+	(can-research-with-escrow ri-heavy-demolition-ship)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-heavy-demolition-ship)
+	(chat-local-to-self "research heavy-demolition-ship")
+)
+
+; ////////////////////////WEAPONS//////////////////
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-forging)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+     (research ri-forging)
+	(chat-local-to-self "research forging")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-iron-casting)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-iron-casting)
+	(chat-local-to-self "research iron-casting")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-blast-furnace)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-blast-furnace)
+	(chat-local-to-self "research blast-furnace")
+)
+
+;ARCHER UPGRADES -- cost food/gold
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-fletching)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-fletching)
+	(chat-local-to-self "research fletching")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-bodkin-arrow)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-bodkin-arrow)
+	(chat-local-to-self "research bodkin-arrow")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-bracer)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-bracer)
+	(chat-local-to-self "research bracer")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total archer-line > 3)
+		(or
+			(unit-type-count-total skirmisher-line > 3)
+			(unit-type-count-total cavalry-archer-line > 3)
+		)
+	)
+	(can-research-with-escrow ri-padded-archer-armor)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-padded-archer-armor)
+	(chat-local-to-self "research padded-archer-armor")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total archer-line > 3)
+		(or
+			(unit-type-count-total skirmisher-line > 3)
+			(unit-type-count-total cavalry-archer-line > 3)
+		)
+	)
+	(can-research-with-escrow ri-leather-archer-armor)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-leather-archer-armor)
+	(chat-local-to-self "research leather-archer-armor")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total archer-line > 3)
+		(or
+			(unit-type-count-total skirmisher-line > 3)
+			(unit-type-count-total cavalry-archer-line > 3)
+		)
+	)
+	(can-research-with-escrow ri-ring-archer-armor)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-ring-archer-armor)
+	(chat-local-to-self "research ring-archer-armor")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total militiaman-line > 3)
+		(unit-type-count-total spearman-line > 3)
+	)
+	(can-research-with-escrow ri-scale-mail)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-scale-mail)
+	(chat-local-to-self "research scale-mail")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total militiaman-line > 3)
+		(unit-type-count-total spearman-line > 3)
+	)
+	(can-research-with-escrow ri-chain-mail)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-chain-mail)
+	(chat-local-to-self "research chain-mail")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total militiaman-line > 3)
+		(unit-type-count-total spearman-line > 3)
+	)
+	(can-research-with-escrow ri-plate-mail)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-plate-mail)
+	(chat-local-to-self "research plate-mail")
+)
+
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total militiaman-line > 3)
+		(unit-type-count-total spearman-line > 3)
+	)
+	(can-research-with-escrow ri-tracking)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-tracking)
+	(chat-local-to-self "research tracking")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total militiaman-line > 3)
+		(unit-type-count-total spearman-line > 3)
+	)
+	(can-research-with-escrow ri-squires)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-squires)
+	(chat-local-to-self "research squires")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total knight-line > 3)
+		(unit-type-count-total scout-cavalry-line > 3)
+	)
+	(can-research-with-escrow ri-scale-barding)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-scale-barding)
+	(chat-local-to-self "research scale-barding")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total knight-line > 3)
+		(unit-type-count-total scout-cavalry-line > 3)
+	)
+	(can-research-with-escrow ri-chain-barding)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-chain-barding)
+	(chat-local-to-self "research chain-barding")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total knight-line > 3)
+		(unit-type-count-total scout-cavalry-line > 3)
+	)
+	(can-research-with-escrow ri-plate-barding)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-plate-barding)
+	(chat-local-to-self "research plate-barding")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count-total cavalry-archer-line > 3)
+		(or
+			(unit-type-count-total knight-line > 3)
+			(unit-type-count-total scout-cavalry-line > 3)
+		)
+	)
+	(can-research-with-escrow ri-husbandry)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-husbandry)
+	(chat-local-to-self "research husbandry")
+)
+
+; /////////////////////SIEGE RESEARCH ITEMS///////////////////////////
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-siege-engineers)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-siege-engineers)
+	(chat-local-to-self "research siege-engineers")
+)
+
+;FORTRESS UPGRADES
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-hoardings)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-hoardings)
+	(chat-local-to-self "research hoardings")
+)
+
+;SHIPS
+(defrule
+	(goal 16 0)
+	(unit-type-count cannon-galleon > 2)
+	(can-research-with-escrow ri-deck-guns)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-deck-guns)
+	(chat-local-to-self "research deck guns ")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count transport-ship > 0)
+		(unit-type-count galley-line > 2)
+	)
+	(can-research-with-escrow ri-careening)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-careening)
+	(chat-local-to-self "research careening ")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count transport-ship > 0)
+		(unit-type-count galley-line > 2)
+	)
+	(can-research-with-escrow ri-dry-dock)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-dry-dock)
+	(chat-local-to-self "research dry-dock ")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(unit-type-count galley-line > 2)
+		(or
+			(unit-type-count-total cannon-galleon-line > 1)
+			(unit-type-count-total fire-ship-line > 1)
+		)
+	)
+	(can-research-with-escrow ri-shipwright)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-shipwright)
+	(chat-local-to-self "research shipwright ")
+)
+
+;OTHER RESEARCH ITEMS
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-ballistics)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-ballistics)
+	(chat-local-to-self "research ballistics ")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-chemistry)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-chemistry)
+	(chat-local-to-self "research chemistry ")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-conscription)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-conscription)
+	(chat-local-to-self "research conscription")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow my-unique-research)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research my-unique-research)
+	(chat-local-to-self "research unique tech")
+)
+
+
+; //////////////////////ECONOMIC////////////////////////
+
+;mining-camp items
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-gold-mining)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-gold-mining)
+	(chat-local-to-self "research gold mining")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-gold-shaft-mining)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-gold-shaft-mining)
+	(chat-local-to-self "research gold shaft mining")
+)
+
+(defrule
+	(goal 16 0)
+	(building-type-count mining-camp > 1)
+	(can-research-with-escrow ri-stone-mining)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-stone-mining)
+	(chat-local-to-self "research stone mining")
+)
+
+(defrule
+	(goal 16 0)
+	(building-type-count mining-camp > 1)
+	(can-research-with-escrow ri-stone-shaft-mining)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-stone-shaft-mining)
+	(chat-local-to-self "research stone shaft mining")
+)
+
+;mill items
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-horse-collar)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-horse-collar)
+	(chat-local-to-self "research horse collar")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-heavy-plow)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-heavy-plow)
+	(chat-local-to-self "research heavy plow")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-crop-rotation)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-crop-rotation)
+	(chat-local-to-self "research crop rotation")
+)
+
+;saw mill
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-double-bit-axe)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-double-bit-axe)
+	(chat-local-to-self "research double bit axe")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-bow-saw)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-bow-saw)
+	(chat-local-to-self "research bow saw")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-two-man-saw)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-two-man-saw)
+	(chat-local-to-self "research 2 man saw")
+)
+
+;university stuff
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-masonry)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-masonry)
+	(chat-local-to-self "research masonry")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-architecture)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-architecture)
+	(chat-local-to-self "research architecture")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-stonecutting)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-stonecutting)
+	(chat-local-to-self "research stonecutting")
+)
+
+;market & town center
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-guilds)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-guilds)
+	(chat-local-to-self "research guilds")
+)
+
+(defrule
+	(goal 16 0)
+	(current-age == dark-age)
+	(can-research-with-escrow ri-loom)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-loom)
+	(chat-local-to-self "research loom")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-hand-cart)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-hand-cart)
+	(chat-local-to-self "research hand-cart")
+)
+
+(defrule
+	(goal 16 0)
+	(can-research-with-escrow ri-wheel-barrow)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-wheel-barrow)
+	(chat-local-to-self "research wheelbarrow")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(players-stance any-computer ally)
+		(players-stance any-human ally)
+	)
+	(can-research-with-escrow ri-coinage)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-coinage)
+	(chat-local-to-self "research coinage")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(players-stance any-computer ally)
+		(players-stance any-human ally)
+	)
+	(can-research-with-escrow ri-banking)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-banking)
+	(chat-local-to-self "research banking")
+)
+
+; ////////////////////MONK/////////////////
+(defrule
+	(goal 16 0)
+	(or
+		(cc-players-unit-type-count any-enemy monk > 1)
+                (unit-type-count-total war-elephant-line > 2)
+	)
+	(can-research-with-escrow ri-faith)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-faith)
+	(chat-local-to-self "research faith")
+)
+
+(defrule
+	(goal 16 0)
+        (cc-players-unit-type-count any-enemy monk > 2)
+	(can-research-with-escrow ri-atonement)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-atonement)
+	(chat-local-to-self "research atonement")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total monk > 2)
+	(can-research-with-escrow ri-block-printing)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-block-printing)
+	(chat-local-to-self "research block printing")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total monk > 2)
+	(can-research-with-escrow ri-illumination)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-illumination)
+	(chat-local-to-self "research illumination")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total monk > 2)
+	(can-research-with-escrow ri-fervor)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-fervor)
+	(chat-local-to-self "research fervor")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total monk > 2)
+	(can-research-with-escrow ri-redemption)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-redemption)
+	(chat-local-to-self "research redemption")
+)
+
+(defrule
+	(goal 16 0)
+	(unit-type-count-total monk > 2)
+	(can-research-with-escrow ri-sanctity)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-sanctity)
+	(chat-local-to-self "research sanctity")
+)
+
+;TOWERS
+
+(defrule
+	(goal 16 0)
+	(building-type-count-total watch-tower > 1)
+	(can-research-with-escrow ri-guard-tower)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-guard-tower)
+	(chat-local-to-self "research guard tower")
+)
+
+(defrule
+	(goal 16 0)
+	(building-type-count-total guard-tower > 1)
+	(can-research-with-escrow ri-keep)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+    (research ri-keep)
+	(chat-local-to-self "research keep")
+)
+
+(defrule
+	(goal 16 0)
+	(building-type-count university > 0)
+	(building-type-count-total watch-tower-line > 3)
+	(research-available ri-bombard-tower)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+     (research ri-bombard-tower)
+	(chat-local-to-self "research bombard-tower")
+)
+
+(defrule
+	(goal 16 0)
+	(building-type-count-total watch-tower-line > 3)
+	(can-research-with-escrow ri-heated-shot)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+     (research ri-heated-shot)
+	(chat-local-to-self "research heated-shot")
+)
+
+(defrule
+	(goal 16 0)
+	(or
+		(building-type-count-total castle > 0)
+		(building-type-count-total watch-tower-line > 2)
+	)
+	(can-research-with-escrow ri-murder-holes)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-murder-holes)
+	(chat-local-to-self "research murder-holes")
+)
+
+(defrule
+	(goal 16 0)
+(or
+		(building-type-count-total castle > 0)
+		(building-type-count-total watch-tower-line > 2)
+	)
+	(can-research-with-escrow ri-fortified-wall)
+=>
+	(release-escrow wood)
+	(release-escrow food)
+	(release-escrow gold)
+	(release-escrow stone)
+	(research ri-fortified-wall)
+	(chat-local-to-self "research fortifications")
+)
+
+
+; ================ MARKET - just buys and sells when the price is right and stockpile low
+
+; ///////////////////////// FEUDAL
+
+(defrule
+	(current-age == feudal-age)
+	(gold-amount >= 500)
+	(wood-amount <= 100)
+	(commodity-buying-price wood <= 100)
+	(can-buy-commodity wood)
+=>
+	(chat-local-to-self "Wood panic")
+	(buy-commodity wood)
+)
+
+(defrule
+	(current-age == feudal-age)
+	(gold-amount >= 500)
+	(food-amount <= 100)
+	(commodity-buying-price food <= 100)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "Food panic")
+	(buy-commodity food)
+)
+
+(defrule
+	(current-age == feudal-age)
+	(gold-amount >= 600)
+	(stone-amount <= 100)
+	(commodity-buying-price stone <= 200)
+	(can-buy-commodity stone)
+=>
+	(chat-local-to-self "need stone")
+	(buy-commodity stone)
+)
+
+(defrule
+	(current-age == feudal-age)
+	(wood-amount >= 500)
+	(or
+		(gold-amount < 100)
+		(food-amount < 100)
+	)
+	(commodity-selling-price wood >= 50)
+	(can-sell-commodity wood)
+=>
+	(chat-local-to-self "Gold panic; sell wood")
+	(sell-commodity wood)
+)
+
+(defrule
+	(current-age == feudal-age)
+	(food-amount >= 1000)
+	(or
+		(gold-amount < 100)
+		(wood-amount < 100)
+	)
+	(can-sell-commodity food)
+=>
+	(chat-local-to-self "excess food")
+	(sell-commodity food)
+)
+
+(defrule
+	(current-age == feudal-age)
+	(stone-amount >= 1000)
+	(or
+		(gold-amount < 100)
+		(wood-amount < 100)
+	)
+	(can-sell-commodity stone)
+=>
+	(chat-local-to-self "excess stone")
+	(sell-commodity stone)
+)
+
+;****************************CASTLE
+(defrule
+	(current-age == castle-age)
+	(gold-amount >= 1000)
+	(wood-amount <= 200)
+	(commodity-buying-price wood <= 100)
+	(can-buy-commodity wood)
+=>
+	(chat-local-to-self "Wood panic")
+	(buy-commodity wood)
+)
+
+(defrule
+	(current-age == castle-age)
+	(gold-amount >= 500)
+	(wood-amount <= 100)
+	(can-buy-commodity wood)
+=>
+	(chat-local-to-self "Wood panic")
+	(buy-commodity wood)
+)
+
+(defrule
+	(current-age == castle-age)
+	(gold-amount >= 1000)
+	(food-amount <= 200)
+	(commodity-buying-price food <= 100)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "Food panic")
+	(buy-commodity food)
+)
+
+(defrule
+	(current-age == castle-age)
+	(gold-amount >= 500)
+	(food-amount <= 100)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "Food panic")
+	(buy-commodity food)
+)
+
+(defrule
+	(current-age == castle-age)
+	(gold-amount >= 1200)
+	(stone-amount <= 200)
+	(commodity-buying-price stone <= 200)
+	(can-buy-commodity stone)
+=>
+	(chat-local-to-self "need stone")
+	(buy-commodity stone)
+)
+
+(defrule
+	(current-age == castle-age)
+	(wood-amount >= 1000)
+	(or
+		(gold-amount < 200)
+		(food-amount < 200)
+	)
+	(commodity-selling-price wood >= 25)
+	(can-sell-commodity wood)
+=>
+	(chat-local-to-self "Gold panic; sell wood")
+	(sell-commodity wood)
+)
+
+(defrule
+	(current-age == castle-age)
+	(food-amount >= 1200)
+	(or
+		(gold-amount < 200)
+		(wood-amount < 200)
+	)
+	(can-sell-commodity food)
+=>
+	(chat-local-to-self "excess food")
+	(sell-commodity food)
+)
+
+(defrule
+	(current-age == castle-age)
+	(stone-amount >= 1000)
+	(or
+		(gold-amount < 200)
+		(wood-amount < 200)
+	)
+	(can-sell-commodity stone)
+=>
+	(chat-local-to-self "excess stone")
+	(sell-commodity stone)
+)
+
+;imperial age
+
+(defrule
+	(gold-amount >= 1500)
+	(wood-amount <= 200)
+	(can-buy-commodity wood)
+=>
+	(chat-local-to-self "Wood panic")
+	(buy-commodity wood)
+)
+
+(defrule
+	(gold-amount >= 1500)
+	(food-amount <= 200)
+	(can-buy-commodity food)
+=>
+	(chat-local-to-self "Food panic")
+	(buy-commodity food)
+)
+
+(defrule
+	(gold-amount >= 1500)
+	(stone-amount <= 200)
+	(can-buy-commodity stone)
+=>
+	(chat-local-to-self "need stone")
+	(buy-commodity stone)
+)
+
+(defrule
+	(wood-amount >= 1500)
+	(or
+		(gold-amount < 200)
+		(food-amount < 200)
+	)
+	(can-sell-commodity wood)
+=>
+	(chat-local-to-self "Gold panic; sell wood")
+	(sell-commodity wood)
+)
+
+(defrule
+	(food-amount >= 1500)
+	(or
+		(gold-amount < 200)
+		(wood-amount < 200)
+	)
+	(can-sell-commodity food)
+=>
+	(chat-local-to-self "excess food")
+	(sell-commodity food)
+)
+
+(defrule
+	(stone-amount >= 1500)
+	(or
+		(or
+			(gold-amount < 200)
+			(wood-amount < 200)
+		)
+		(food-amount < 200)
+	)
+	(can-sell-commodity stone)
+=>
+	(chat-local-to-self "excess stone")
+	(sell-commodity stone)
+)
+
+
